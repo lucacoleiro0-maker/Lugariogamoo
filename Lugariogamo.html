@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lugariogamo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+        
+        :root {
+            --primary: #00ff9f;
+            --accent: #ff00aa;
+            --bg: #0a0a1f;
+            --card: #1a1a3a;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: 'VT323', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        header {
+            background: rgba(10, 10, 31, 0.95);
+            padding: 1.4rem 1.5rem;
+            border-bottom: 4px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 0 30px rgba(0, 255, 159, 0.3);
+        }
+        
+        .logo {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.7rem;
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary), 0 0 20px var(--accent);
+            letter-spacing: 2px;
+        }
+        
+        .search-container {
+            width: 100%;
+            max-width: 420px;
+        }
+        
+        #searchInput {
+            width: 100%;
+            padding: 13px 18px;
+            background: var(--card);
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            color: white;
+            font-size: 1.25rem;
+            font-family: 'VT323', monospace;
+            outline: none;
+            transition: 0.25s;
+        }
+        
+        #searchInput:focus {
+            box-shadow: 0 0 22px var(--primary);
+        }
+        
+        .game-list-header {
+            text-align: center;
+            margin: 28px 0 12px;
+            font-size: 1.7rem;
+            color: var(--accent);
+            text-shadow: 0 0 16px var(--accent);
+            font-family: 'Press Start 2P', monospace;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 22px;
+            padding: 20px 18px 70px;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+        
+        .game-card {
+            background: var(--card);
+            border: 4px solid var(--primary);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-9px) scale(1.03);
+            box-shadow: 0 0 32px var(--primary);
+            border-color: var(--accent);
+        }
+        
+        .game-thumbnail {
+            height: 150px;
+            background: #111;
+            overflow: hidden;
+            border-bottom: 4px solid var(--accent);
+        }
+        
+        .game-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s;
+        }
+        
+        .game-card:hover .game-thumbnail img {
+            transform: scale(1.07);
+        }
+        
+        .game-info {
+            padding: 14px;
+        }
+        
+        .game-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+            text-shadow: 0 0 8px var(--primary);
+            line-height: 1.3;
+        }
+        
+        .game-category {
+            font-size: 0.95rem;
+            color: #aaa;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        
+        .play-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        
+        .play-btn:hover {
+            background: var(--primary);
+            color: #000;
+            transform: scale(1.04);
+        }
+        
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 1.6rem;
+            color: #777;
+            padding: 60px 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .logo { font-size: 1.25rem; }
+            .games-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+            .game-title { font-size: 0.75rem; }
+            .play-btn { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">LUGARIOGAMO</div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="SEARCH GAMES..." onkeyup="filterGames()" autocomplete="off">
+        </div>
+    </header>
+
+    <div class="game-list-header">ALL GAMES</div>
+    <div class="games-grid" id="gamesGrid"></div>
+
+    <script>
+        const games = [
+            { name: "Among Us", category: "Multiplayer", file: "amongus.html", image: "https://i.postimg.cc/mrWLmgzY/Among-Us-cover-art.jpg" },
+            { name: "Angry Birds", category: "Puzzle", file: "angrybirds.html", image: "https://i.postimg.cc/LXNm4kyJ/Angry-Birds-promo-art.png" },
+            { name: "Angry Birds Showdown", category: "Puzzle", file: "angrybirdsshowdown.html", image: "https://i.postimg.cc/SRPqCSbS/unnamed.webp" },
+            { name: "Angry Birds Space", category: "Puzzle", file: "angrybirdsspace.html", image: "https://i.postimg.cc/y8cB3CQN/Angry-Birds-Space-Square-Icon.webp" },
+            { name: "Backrooms", category: "Horror", file: "backrooms.html", image: "https://i.postimg.cc/k4hLhT1s/wxdf1t.jpg" },
+            { name: "Candy Crush", category: "Puzzle", file: "candycrush.html", image: "https://i.postimg.cc/TYmYgb1J/apps-54354-13510798882606697-7a42c472-75d7-487e-9538-ebb5ce1657e6.jpg" },
+            { name: "Crossy Road", category: "Arcade", file: "crossyroad.htm", image: "https://i.postimg.cc/k5Mn0hcL/Crossy-Road-Banner.webp" },
+            { name: "FNAF", category: "Horror", file: "fnaf.html", image: "https://i.postimg.cc/XJm4yN0T/81-P6YZOi-BL.png" },
+            { name: "FNAF 2", category: "Horror", file: "fnaf2.html", image: "https://i.postimg.cc/6649xZry/images.jpg" },
+            { name: "FNAF 3", category: "Horror", file: "fnaf3.html", image: "https://i.postimg.cc/TYrfpXHp/81pax-GYlcq-L.png" },
+            { name: "FNAF 4", category: "Horror", file: "fnaf4.html", image: "https://i.postimg.cc/6QQXj465/Fnaf-4-desktop-icon.webp" },
+            { name: "Fruit Ninja", category: "Arcade", file: "fruitninja.html", image: "https://i.postimg.cc/L4kmspWm/Fruit-Ninja-OG-Logo.jpg" },
+            { name: "Geometry Dash", category: "Platformer", file: "geometrydash.html", image: "https://i.postimg.cc/wT0HhkHD/Geometrydash.webp" },
+            { name: "Granny", category: "Horror", file: "granny.html", image: "https://i.postimg.cc/GmfCfh4t/unnamed.png" },
+            { name: "Granny 2", category: "Horror", file: "granny2.html", image: "https://i.postimg.cc/GpsCnwYw/unnamed.png" },
+            { name: "Mario 64", category: "Platformer", file: "mario64.html", image: "https://i.postimg.cc/MHtkmWkz/MV5BY2Qz-ZTVh-Yjct-ZWMy-Ny00MDlh-LThh-YTkt-ZDg2M2Ew-NTE3ZDZk-Xk-Ey-Xk-Fqc-Gc-V1.jpg" },
+            { name: "Minecraft", category: "Sandbox", file: "minecraft.html", image: "https://i.postimg.cc/3JJQJDpm/minecraft-landscape.avif" },
+            { name: "Moto X3M", category: "Racing", file: "motox3m.htm", image: "https://i.postimg.cc/QM7RngGd/moto-x3m-1x1-cover.png" },
+            { name: "Moto X3M 2", category: "Racing", file: "motox3m2.html", image: "https://i.postimg.cc/Wb4xPcLx/maxresdefault.jpg" },
+            { name: "Moto X3M 3", category: "Racing", file: "motox3m3.html", image: "https://i.postimg.cc/7ZGcf1Lz/hqdefault.jpg" },
+            { name: "Moto X3M Pool Party", category: "Racing", file: "motox3mpoolparty.html", image: "https://i.postimg.cc/QCY4MVGS/moto-x3m-5-pool-party-logo.jpg" },
+            { name: "Moto X3M Spooky Land", category: "Racing", file: "motox3mspookyland.html", image: "https://i.postimg.cc/Jzk611TX/moto-x3m-spooky-land-logo.jpg" },
+            { name: "Moto X3M Winter", category: "Racing", file: "motox3mwinter.html", image: "https://i.postimg.cc/zfwxgxYG/moto-x3m-4-1x1-cover.png" },
+            { name: "Pac Man", category: "Arcade", file: "pacman.html", image: "https://i.postimg.cc/x8Bv7mVR/Pac-Man-Logo.png" },
+            { name: "Pou", category: "Simulation", file: "pou.html", image: "https://i.postimg.cc/mD5Cz9kw/Pou-by-Paul-Salameh.jpg" },
+            { name: "Superwog Galactic Defense", category: "Action", file: "superwog-galactic-defense.html", image: "https://i.postimg.cc/wxNdGpz3/images.jpg" },
+            { name: "Tetris", category: "Puzzle", file: "tetris.html", image: "https://i.postimg.cc/L5PDmDDK/images.jpg" },
+            { name: "Wrestle Bros", category: "Fighting", file: "wrestlebros.html", image: "https://i.postimg.cc/zXn7Md3k/wrestle-bros-16x9-cover.png" }
+        ];
+
+        function createGameCard(game) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.innerHTML = `
+                <div class="game-thumbnail">
+                    <img src="${game.image}" alt="${game.name}" loading="lazy"
+                         onerror="this.src='https://via.placeholder.com/300x200/1a1a3a/00ff9f?text=${encodeURIComponent(game.name)}'">
+                </div>
+                <div class="game-info">
+                    <div class="game-title">${game.name}</div>
+                    <div class="game-category">${game.category}</div>
+                    <button class="play-btn" onclick="playGame('${game.file}')">PLAY NOW</button>
+                </div>
+            `;
+            return card;
+        }
+
+        function renderGames(list) {
+            const grid = document.getElementById('gamesGrid');
+            grid.innerHTML = '';
+            if (list.length === 0) {
+                grid.innerHTML = '<div class="no-results">No games found</div>';
+                return;
+            }
+            list.forEach(g => grid.appendChild(createGameCard(g)));
+        }
+
+        function filterGames() {
+            const term = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = games.filter(g =>
+                g.name.toLowerCase().includes(term) ||
+                g.category.toLowerCase().includes(term)
+            );
+            renderGames(filtered);
+        }
+
+        // Open games in a new tab (this fixes Minecraft, Angry Birds, Granny, etc.)
+        function playGame(file) {
+            window.open(file, '_blank');
+        }
+
+        // Keyboard shortcut
+        document.addEventListener('keydown', e => {
+            if (e.key === '/' && document.activeElement !== document.getElementById('searchInput')) {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+        });
+
+        // Start
+        renderGames(games);
+    </script>
+</body>
+</html>
